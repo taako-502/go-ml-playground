@@ -63,10 +63,7 @@ func main() {
 	m := model{}
 	fmt.Printf("架空の住宅価格 / 学習 %d件・評価 %d件 / seed=%d\n", len(train), len(test), *seed)
 	fmt.Printf("epoch=%4d  学習MSE=%.2f\n", 0, mse(m, train))
-	interval := *epochs / 10
-	if interval < 1 {
-		interval = 1
-	}
+	interval := max(*epochs/10, 1)
 	for epoch := 1; epoch <= *epochs; epoch++ {
 		m = step(m, train, *rate)
 		loss := mse(m, train)

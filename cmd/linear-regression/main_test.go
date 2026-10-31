@@ -8,7 +8,7 @@ import (
 func TestLearnKnownLine(t *testing.T) {
 	train, test := dataset(42, 0)
 	m := model{}
-	for i := 0; i < 2000; i++ {
+	for range 2000 {
 		m = step(m, train, 0.1)
 	}
 	if math.Abs(m.weight/100-30) > 0.01 || math.Abs(m.bias-500) > 0.1 || mse(m, test) > 0.01 {

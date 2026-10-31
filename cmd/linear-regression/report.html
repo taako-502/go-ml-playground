@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>アイスクリームの販売数を学ぶ | Go ML Playground</title>
+<style>
+:root{color-scheme:light;--ink:#142d3a;--muted:#526773;--teal:#007f78;--orange:#ce622c;--line:#dce5e7}*{box-sizing:border-box}body{margin:0;background:#f3f6f5;color:var(--ink);font:15px/1.7 system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:40px 24px}header{margin-bottom:28px}.eyebrow{font-size:12px;letter-spacing:.16em;font-weight:750;color:var(--teal)}h1{font-size:clamp(26px,4vw,42px);line-height:1.3;margin:12px 0}h2{font-size:19px;margin:0 0 6px}p{margin:8px 0;color:var(--muted)}.flow{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0}.flow span{background:#e3eeeb;padding:8px 14px;border-radius:6px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}.card,.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px}.value{font-size:30px;font-weight:750;letter-spacing:-.03em}.unit{font-size:14px;font-weight:400}.small{font-size:13px;color:var(--muted)}.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:20px}.panel{margin-bottom:20px}.wide{grid-column:1/-1}svg{width:100%;height:auto;display:block;margin:12px 0}svg text{font:12px system-ui;fill:var(--muted)}.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px}.train{color:var(--teal)}.test{color:var(--orange)}.controls{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:16px}input[type=range]{flex:1;min-width:140px;accent-color:var(--teal)}button{background:var(--ink);color:white;border:0;padding:9px 16px;border-radius:6px;cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #efab42;outline-offset:3px}input[type=number]{width:110px;padding:8px;border:1px solid #98acb4;border-radius:6px;font:inherit}.formula{font-size:18px;font-weight:650;margin:14px 0}.table-wrap{max-height:310px;overflow:auto}table{width:100%;border-collapse:collapse;text-align:right;font-variant-numeric:tabular-nums}th,td{padding:8px;border-bottom:1px solid var(--line)}th{position:sticky;top:0;background:#fff;font-size:13px}footer{font-size:13px;color:var(--muted);padding:4px 0 24px}#prediction{font-size:28px;font-weight:750;color:var(--teal)}@media(max-width:760px){main{padding:24px 14px}.grid,.metrics{grid-template-columns:1fr}.card,.panel{padding:18px}.value{font-size:26px}}
+</style>
+</head>
+<body><main>
+<header><div class="eyebrow">GO ML PLAYGROUND / EXPERIMENT 01</div><h1>気温から、アイスクリームの販売数を学ぶ。</h1><p>Goの標準ライブラリだけで実装した線形回帰。最初は何も知らない直線が、80件の例から販売数の傾向を学びます。</p><div class="flow"><span>① 架空の100日分の販売データを生成</span><span>② 80件で直線を学習</span><span>③ 未使用の20件で評価</span></div><p class="small" id="settings"></p></header>
+<noscript>グラフと数値の表示にはJavaScriptを有効にしてください。</noscript>
+<section class="metrics" aria-label="最終結果"><div class="card"><div class="small">学習後の評価誤差 / RMSE</div><div class="value" id="final-error"></div><p class="small">学習に使わなかった20件で測定</p></div><div class="card"><div class="small">平均販売数だけで予測した場合</div><div class="value" id="baseline"></div><p class="small">学習80件の平均を常に返す基準モデル</p></div><div class="card"><div class="small">基準モデルと比べた評価RMSE</div><div class="value" id="improvement"></div><p class="small">同じ評価20件で比較・小さいほど良い</p></div></section>
+<div class="grid">
+<section class="panel"><h2>01 / 直線がデータに近づく</h2><p class="small">点は実際に生成した日の記録。スライダーで学習途中の予測を確認できます。</p><div class="legend"><span class="train">● 学習80件</span><span class="test">◆ 評価20件</span><span>━ 予測直線</span><span>┄ 生成式（ノイズなし）</span></div><svg id="scatter" viewBox="0 0 560 340" role="img" aria-label="気温と販売数の散布図、学習した予測直線"></svg><div class="controls"><button id="play" type="button">学習を再生</button><label for="epoch">学習の進み具合</label><input id="epoch" type="range" min="0" value="0"><output id="epoch-label" for="epoch"></output></div><div class="formula" id="formula"></div><p class="small" id="current-error"></p></section>
+<section class="panel"><h2>02 / 間違いは小さくなった？</h2><p class="small">横軸は学習回数、縦軸はMSE（個²・対数目盛）。評価データは更新に使っていません。</p><div class="legend"><span class="train">━ 学習MSE</span><span class="test">━ 評価MSE</span></div><svg id="loss" viewBox="0 0 560 340" role="img" aria-label="学習回数に対する学習と評価の平均二乗誤差"></svg><p class="small">MSEは誤差を二乗した平均、RMSEはその平方根です。RMSEは販売数と同じ「個」で誤差の大きさを表します。</p><p class="small">ノイズがあるため、学習しても誤差が0になるとは限りません。</p></section>
+<section class="panel"><h2>03 / 学習した式で予測する</h2><p>最終モデルに気温を入力してみてください。</p><div class="controls"><label for="temperature">気温（℃）</label><input id="temperature" type="number" step="any"></div><output id="prediction" for="temperature" aria-live="polite"></output><p id="temperature-note" class="small"></p><p class="small">入力した気温への予測はブラウザで計算します。学習のやり直しはGoコマンドで行います。</p></section>
+<section class="panel"><h2>04 / 未知の20件で答え合わせ</h2><p class="small">最終モデルの予測と正解。差は「予測 − 正解」（個）。</p><div class="table-wrap"><table><thead><tr><th scope="col">気温（℃）</th><th scope="col">正解</th><th scope="col">予測</th><th scope="col">差</th></tr></thead><tbody id="predictions"></tbody></table></div></section>
+</div><footer>これは架空データによる学習の仕組みの実験です。実際の販売数の推定には使えません。販売数は連続値として扱うため小数があり、大きなノイズや外挿では負の値も生じます。<br>生成式は「販売数 = 8 × 気温 + 40 + ノイズ」。この係数は学習処理には渡していません。HTML内の学習結果はGoの実行時に記録したものです。</footer>
+</main>
+<script id="report-data" type="application/json">{{.}}</script>
+<script>
+'use strict';
+const d=JSON.parse(document.getElementById('report-data').textContent), h=d.history, last=h[h.length-1];
+const $=id=>document.getElementById(id), fmt=(v,n=1)=>Math.abs(v)>=1e8?v.toExponential(2):v.toLocaleString('ja-JP',{maximumFractionDigits:n,minimumFractionDigits:n});
+$('settings').textContent=`実行設定：seed ${d.seed} / 学習率 ${d.rate} / ノイズ標準偏差 ${d.noise}個 / ${last.epoch.toLocaleString()}回更新`;
+$('final-error').textContent=fmt(Math.sqrt(last.testMSE))+' 個';$('baseline').textContent=fmt(d.baselineRMSE)+' 個';
+const gain=(1-Math.sqrt(last.testMSE)/d.baselineRMSE)*100;
+$('improvement').textContent=Number.isFinite(gain)?fmt(Math.abs(gain))+(gain>=0?'% 減少':'% 増加'):'比較不可';
+const ns='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent,text){const node=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,v);if(text!==undefined)node.textContent=text;parent.appendChild(node);return node;}
+const box={l:72,r:536,t:24,b:288};
+function axes(svg,xmin,xmax,ymin,ymax,xlabel,ylabel,log=false){svg.replaceChildren();const x=v=>box.l+(v-xmin)/(xmax-xmin)*(box.r-box.l),y=v=>box.b-(v-ymin)/(ymax-ymin)*(box.b-box.t);
+for(let i=0;i<=4;i++){const xv=xmin+(xmax-xmin)*i/4,yv=ymin+(ymax-ymin)*i/4;el('line',{x1:box.l,y1:y(yv),x2:box.r,y2:y(yv),stroke:'#e1e8eb'},svg);el('text',{x:box.l-10,y:y(yv)+4,'text-anchor':'end'},svg,log?(10**yv).toExponential(1):fmt(yv,0));el('text',{x:x(xv),y:310,'text-anchor':'middle'},svg,fmt(xv,0));}
+el('text',{x:box.l,y:14},svg,ylabel);el('text',{x:box.r,y:334,'text-anchor':'end'},svg,xlabel);return {x,y};}
+const all=[...d.train,...d.test], salesValues=all.map(s=>s.sales), ymin=Math.min(0,...salesValues), ymax=Math.max(320,...salesValues)*1.08;
+const s=axes($('scatter'),-2,37,ymin,ymax,'気温（℃）','販売数（個）');
+el('line',{x1:s.x(0),y1:s.y(40),x2:s.x(35),y2:s.y(320),stroke:'#87949b','stroke-dasharray':'6 5','stroke-width':2},$('scatter'));
+for(const [data,color,test] of [[d.train,'#007f78',false],[d.test,'#ce622c',true]])for(const p of data){const x=s.x(p.temperature),y=s.y(p.sales);const mark=test?el('path',{d:`M${x},${y-5}l5,5 -5,5 -5,-5Z`,fill:color},$('scatter')):el('circle',{cx:x,cy:y,r:3.5,fill:color,opacity:.7},$('scatter'));el('title',{},mark,`${test?'評価':'学習'}: ${fmt(p.temperature)}℃ / ${fmt(p.sales)}個`);}
+const defs=el('defs',{},$('scatter')), clip=el('clipPath',{id:'plot-clip'},defs);el('rect',{x:box.l,y:box.t,width:box.r-box.l,height:box.b-box.t},clip);
+const line=el('line',{stroke:'#142d3a','stroke-width':3,'clip-path':'url(#plot-clip)'},$('scatter'));
+const logLoss=v=>Math.log10(Math.max(v,1e-12));let low=Infinity,high=-Infinity;for(const p of h)for(const v of [p.trainMSE,p.testMSE]){low=Math.min(low,logLoss(v));high=Math.max(high,logLoss(v));}
+low=Math.floor(low);high=Math.max(low+1,Math.ceil(high));const l=axes($('loss'),0,last.epoch,low,high,'学習回数（epoch）','MSE（対数目盛）',true);
+for(const [key,color] of [['trainMSE','#007f78'],['testMSE','#ce622c']])el('path',{d:h.map((p,i)=>`${i?'L':'M'}${l.x(p.epoch)},${l.y(logLoss(p[key]))}`).join(' '),fill:'none',stroke:color,'stroke-width':2.5},$('loss'));
+const cursor=el('line',{y1:box.t,y2:box.b,stroke:'#142d3a','stroke-dasharray':'4 4'},$('loss'));
+$('epoch').max=h.length-1;$('epoch').value=h.length-1;
+function render(){const p=h[Number($('epoch').value)];for(const [key,val] of Object.entries({x1:s.x(0),x2:s.x(35),y1:s.y(p.bias),y2:s.y(p.slope*35+p.bias)}))line.setAttribute(key,val);cursor.setAttribute('x1',l.x(p.epoch));cursor.setAttribute('x2',l.x(p.epoch));$('epoch-label').textContent=`${p.epoch} / ${last.epoch}回`;$('formula').textContent=`販売数 = ${fmt(p.slope,2)} × 気温 ${p.bias<0?'−':'+'} ${fmt(Math.abs(p.bias),2)}`;$('current-error').textContent=`この時点のRMSE：学習 ${fmt(Math.sqrt(p.trainMSE))}個 / 評価 ${fmt(Math.sqrt(p.testMSE))}個`;}
+let timer=null;function stop(){clearInterval(timer);timer=null;$('play').textContent='学習を再生';}
+$('epoch').addEventListener('input',()=>{stop();render();});$('play').addEventListener('click',()=>{if(timer){stop();return;}if(Number($('epoch').value)>=h.length-1)$('epoch').value=0;render();$('play').textContent='一時停止';timer=setInterval(()=>{ $('epoch').value=Math.min(h.length-1,Number($('epoch').value)+Math.max(1,Math.ceil(h.length/200)));render();if(Number($('epoch').value)>=h.length-1)stop();},40);});
+$('temperature').value=d.temperature;function predict(){const temperature=$('temperature').valueAsNumber,sales=last.slope*temperature+last.bias;if(!Number.isFinite(temperature)||!Number.isFinite(sales)){$('prediction').textContent='有限の気温を入力してください';$('temperature-note').textContent='';return;}$('prediction').textContent=fmt(sales)+' 個';$('temperature-note').textContent=temperature<0||temperature>35?'生成範囲（0〜35℃）の外です。この予測は外挿になります。':'生成範囲（0〜35℃）内の予測です。';}
+$('temperature').addEventListener('input',predict);
+for(const p of d.test){const tr=document.createElement('tr');for(const v of [p.temperature,p.sales,last.slope*p.temperature+last.bias,last.slope*p.temperature+last.bias-p.sales]){const td=document.createElement('td');td.textContent=fmt(v);tr.appendChild(td);}$('predictions').appendChild(tr);}render();predict();
+</script></body></html>

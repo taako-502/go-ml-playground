@@ -11,13 +11,13 @@ func TestLearnKnownLine(t *testing.T) {
 	for range 2000 {
 		m = step(m, train, 0.1)
 	}
-	if math.Abs(m.weight/100-30) > 0.01 || math.Abs(m.bias-500) > 0.1 || mse(m, test) > 0.01 {
+	if math.Abs(m.weight/10-8) > 0.01 || math.Abs(m.bias-40) > 0.1 || mse(m, test) > 0.01 {
 		t.Fatalf("既知の直線を復元できない: %+v, test MSE=%g", m, mse(m, test))
 	}
 }
 
 func TestGradientMatchesFiniteDifference(t *testing.T) {
-	data := []sample{{20, 1000}, {70, 2700}, {110, 3600}}
+	data := []sample{{5, 80}, {20, 200}, {30, 280}}
 	m := model{120, 80}
 	next := step(m, data, 1)
 	eps := 0.001

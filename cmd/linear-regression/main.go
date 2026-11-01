@@ -79,7 +79,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, "学習が発散しました。lrを小さくしてください")
 			os.Exit(1)
 		}
-		if epoch%((*epochs-1)/1000+1) == 0 || epoch == *epochs {
+		if epoch <= 100 || epoch%((*epochs-1)/1000+1) == 0 || epoch == *epochs {
 			record(epoch)
 		}
 		if epoch%interval == 0 || epoch == *epochs {

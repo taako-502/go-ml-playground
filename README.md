@@ -11,8 +11,8 @@ Goの標準ライブラリで機械学習を実装し、ブラウザで学習の
 ### まずは実行結果を見てみる
 
 ```sh
-go run ./cmd/linear-regression -html report.html
-open report.html # macOS。他のOSではファイルをブラウザで開く
+go run ./cmd/linear-regression -html report-linear-regression.html
+open report-linear-regression.html # macOS。他のOSではファイルをブラウザで開く
 ```
 
 生成されるHTMLはCSS・JavaScript・実行データを含む単一ファイルです。サーバーやネット接続、npmのインストールは不要です。
@@ -123,6 +123,8 @@ open report-digits.html # macOS。他のOSではブラウザで開く
 ```
 
 初回は[MNISTの公開ミラー](https://github.com/cvdfoundation/mnist)から約11MBをダウンロードし、`data/mnist/`に保存します。2回目以降はキャッシュを使います。学習はGo、HTMLでの推論は同じ重みを使うJavaScriptです。GPU・Python・npm・機械学習ライブラリは不要。生成後のHTMLはオフラインで開けます。
+
+生成した `report-linear-regression.html` と `report-digits.html` を同じフォルダに置くと、ページ上部のリンクで行き来できます。別の出力名を指定した場合、リンク先は標準のファイル名のままです。
 
 ### 何を試せる？
 

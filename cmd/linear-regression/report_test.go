@@ -14,7 +14,7 @@ func TestReportEmbedsActualResults(t *testing.T) {
 	train, test := dataset(42, 15)
 	m := step(model{}, train, 0.1)
 	want := report{Seed: 42, Rate: 0.1, Noise: 15, Temperature: 25, Train: reportSamples(train), Test: reportSamples(test), History: []snapshot{{1, m.weight / 10, m.bias, mse(m, train), mse(m, test)}}}
-	path := filepath.Join(t.TempDir(), "report.html")
+	path := filepath.Join(t.TempDir(), "report-linear-regression.html")
 	if err := writeReport(path, want); err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func TestReportEmbedsActualResults(t *testing.T) {
 }
 
 func TestReportRejectsNonFiniteBeforeWriting(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "report.html")
+	path := filepath.Join(t.TempDir(), "report-linear-regression.html")
 	if err := os.WriteFile(path, []byte("existing"), 0644); err != nil {
 		t.Fatal(err)
 	}

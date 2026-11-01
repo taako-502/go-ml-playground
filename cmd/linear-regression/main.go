@@ -53,7 +53,7 @@ func main() {
 	noise := flag.Float64("noise", 15, "販売数ノイズの標準偏差（個）")
 	seed := flag.Int64("seed", 42, "乱数シード")
 	temperature := flag.Float64("temperature", 25, "予測する気温（℃）")
-	htmlPath := flag.String("html", "", "可視化HTMLの出力先（例: report.html）")
+	htmlPath := flag.String("html", "", "可視化HTMLの出力先（例: report-linear-regression.html）")
 	flag.Parse()
 	finite := func(x float64) bool { return !math.IsNaN(x) && !math.IsInf(x, 0) }
 	if *epochs <= 0 || !finite(*rate) || *rate <= 0 || !finite(*noise) || *noise < 0 || !finite(*temperature) {

@@ -2,12 +2,12 @@ package main
 
 import (
 	"math"
-	"math/rand"
+	"math/rand/v2"
 	"testing"
 )
 
 func TestBackpropagationMatchesNumericalGradient(t *testing.T) {
-	n := newNetwork(3, rand.New(rand.NewSource(1)))
+	n := newNetwork(3, rand.New(rand.NewPCG(1, 0)))
 	// ReLUの折れ点から離し、両層の重みとバイアスを検証する。
 	for i := range n.B1 {
 		n.B1[i] = 2
@@ -44,7 +44,7 @@ func TestTrainingLearnsPixelPatterns(t *testing.T) {
 			data.image(i)[int(label)*100+j] = 255
 		}
 	}
-	rng := rand.New(rand.NewSource(42))
+	rng := rand.New(rand.NewPCG(42, 0))
 	n := newNetwork(8, rng)
 	initial := n.evaluate(data)
 	for range 20 {
@@ -57,7 +57,7 @@ func TestTrainingLearnsPixelPatterns(t *testing.T) {
 }
 
 func TestSoftmaxIsFiniteAndNormalized(t *testing.T) {
-	n := newNetwork(2, rand.New(rand.NewSource(1)))
+	n := newNetwork(2, rand.New(rand.NewPCG(1, 0)))
 	for i := range n.B2 {
 		n.B2[i] = 10000 + float64(i)
 	}

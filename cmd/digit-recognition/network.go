@@ -2,7 +2,7 @@ package main
 
 import (
 	"math"
-	"math/rand"
+	"math/rand/v2"
 )
 
 const inputs = 28 * 28

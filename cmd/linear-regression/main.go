@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"math"
-	"math/rand"
+	"math/rand/v2"
 	"os"
 )
 
@@ -36,7 +36,7 @@ func step(m model, data []sample, rate float64) model {
 }
 
 func dataset(seed int64, noise float64) ([]sample, []sample) {
-	r := rand.New(rand.NewSource(seed))
+	r := rand.New(rand.NewPCG(uint64(seed), 0))
 	data := make([]sample, 100)
 	for i := range data {
 		temperature := r.Float64() * 35

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"html/template"
 	"math"
-	"math/rand"
+	"math/rand/v2"
 	"os"
 	"time"
 )
@@ -89,7 +89,7 @@ func run() error {
 	// 最後の5000件を検証専用に固定し、テスト10000件は学習後だけ評価する。
 	validation := training.slice(55000, 60000)
 	training = training.slice(0, *count)
-	rng := rand.New(rand.NewSource(*seed))
+	rng := rand.New(rand.NewPCG(uint64(*seed), 0))
 	n := newNetwork(*hidden, rng)
 	r := report{Initial: n.clone(), Model: n, TrainCount: *count, ValidationCount: 5000, TestCount: 10000, Seed: *seed, Rate: *rate, Batch: *batch}
 	fmt.Printf("ニューラルネット: 784 → %d (ReLU) → 10 (softmax) / 学習 %d枚・検証5000枚・テスト10000枚\n", *hidden, *count)

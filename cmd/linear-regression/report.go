@@ -3,7 +3,8 @@ package main
 import (
 	"bytes"
 	_ "embed"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"fmt"
 	"html/template"
 	"os"
@@ -44,7 +45,7 @@ func reportSamples(data []sample) []reportSample {
 
 // Goで計算した結果を埋め込み、ネット接続なしで開けるHTMLを保存する。
 func writeReport(path string, r report) error {
-	data, err := json.Marshal(r)
+	data, err := json.Marshal(&r, jsontext.EscapeForHTML(true), jsontext.EscapeForJS(true))
 	if err != nil {
 		return fmt.Errorf("結果のJSON変換: %w", err)
 	}
@@ -53,7 +54,7 @@ func writeReport(path string, r report) error {
 		return err
 	}
 	var output bytes.Buffer
-	// json.MarshalがHTML特殊文字をエスケープしたJSONのみを渡す。
+	// HTML・JavaScript用のエスケープを明示したJSONのみを渡す。
 	if err := t.Execute(&output, template.JS(data)); err != nil {
 		return err
 	}

@@ -3,7 +3,8 @@ package main
 import (
 	"bytes"
 	_ "embed"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"flag"
 	"fmt"
 	"html/template"
@@ -110,7 +111,7 @@ func run() error {
 	r.Test = n.evaluate(testing)
 	r.inspect(testing)
 	r.Seconds = time.Since(start).Seconds()
-	payload, err := json.Marshal(r)
+	payload, err := json.Marshal(&r, jsontext.EscapeForHTML(true), jsontext.EscapeForJS(true))
 	if err != nil {
 		return err
 	}
@@ -119,7 +120,7 @@ func run() error {
 		return err
 	}
 	var out bytes.Buffer
-	// json.MarshalでHTML特殊文字をエスケープしたJSONのみを埋め込む。
+	// HTML・JavaScript用のエスケープを明示したJSONのみを埋め込む。
 	if err := t.Execute(&out, template.JS(payload)); err != nil {
 		return err
 	}
